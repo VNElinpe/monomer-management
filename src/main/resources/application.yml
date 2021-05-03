@@ -1,0 +1,67 @@
+server:
+  port: 60000
+spring:
+  application:
+    name: management-service
+  datasource:
+    url: jdbc:mysql://localhost:3306/management?useSSL=true&serverTimezone=UTC
+    username: temp
+    password: 123
+
+  redis:
+    host: localhost
+    port: 6379
+    password: 123456
+  mail:
+    host: smtp.qq.com
+    port: 587
+    username: 207265976@qq.com
+    password: bgfqbhkpkeetcadd
+    protocol: smtp
+    default-encoding: UTF-8
+
+
+
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+  configuration:
+    map-underscore-to-camel-case: true
+    cache-enabled: false
+
+
+logging:
+  level:
+    top.vnelinpe: debug
+
+verify-code:
+  length: 4
+
+
+sms:
+  security-id: AKIDT5RW1RnYCZ3JJ4KGWVDDxVmeIkwrYe9M
+  security-key: DVYKoALFrMyJN9f16vTKwHLITTCfz4sP
+  app-id: 1400432578
+  sign: vnelinpe网
+  template-id: 756988
+
+
+
+jwt:
+  key:
+    expire-time: 1800
+    private-key: MEECAQAwEwYHKoZIzj0CAQYIKoZIzj0DAQcEJzAlAgEBBCC/OSD/oOZfBCwYelATbLNjGOIII/3zmp6n1fwMf77kpg==
+    public-key: MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEsUDjMOSoJDz+SOiD+zt4spwCnxLfCT4MMnkgaq/z3rNpjCpNn3t/4SOmoRNmvccJLTfUcyC/CqeBFKV965b5ag==
+
+
+file-access:
+  access-pattern: /file/**
+  file-path: D:/temp/file/
+  excel-path: /excel
+  pic-path: /pic
+
+
+thread-pool:
+  core: 16
+  max: 64
+  list-size: 128
+  alive-time: 4

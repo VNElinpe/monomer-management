@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="top.vnelinpe.management.mapper.LogMapper">
+    <insert id="addLog">
+        INSERT INTO sys_opt_log (
+            opt_type,
+            opt_username,
+            opt_client_ip,
+            opt_server_ip,
+            opt_agent,
+            opt_result,
+            opt_latency,
+            opt_time
+        ) VALUES (
+            #{optType},
+            #{optUsername},
+            #{optClientIp},
+            #{optServerIp},
+            #{optAgent},
+            #{optResult},
+            #{optLatency},
+            #{optTime}
+        )
+    </insert>
+
+    <select id="list" resultType="top.vnelinpe.management.dto.sys.SysOptLogDTO">
+        SELECT
+            id, opt_type, opt_username, opt_client_ip,
+            opt_server_ip, opt_agent, opt_result, opt_latency, opt_time
+        FROM
+            sys_opt_log
+        <where>
+            <if test="optType != null">
+                AND opt_type = #{optType}
+            </if>
+            <if test="optUsername != null">
+                AND opt_username = #{optUsername}
+            </if>
+            <if test="optClientIp != null">
+                AND opt_client_ip = #{optClientIp}
+            </if>
+            <if test="optServerIp != null">
+                AND opt_server_ip = #{optServerIp}
+            </if>
+            <if test="optAgent != null">
+                and opt_agent LIKE concat(#{optAgent},'%')
+            </if>
+            <if test="optResult != null">
+                AND opt_result = #{optResult}
+            </if>
+            <if test="startOptLatency != null">
+                AND opt_latency >= #{startOptLatency}
+            </if>
+            <if test="endOptLatency != null">
+                AND opt_latency <![CDATA[<=]]> #{endOptLatency}
+            </if>
+            <if test="startOptTime != null">
+                AND opt_time >= #{startOptTime}
+            </if>
+            <if test="endOptTime != null">
+                AND opt_time <![CDATA[<=]]> #{endOptTime}
+            </if>
+        </where>
+    </select>
+</mapper>

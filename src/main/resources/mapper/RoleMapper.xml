@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="top.vnelinpe.management.mapper.RoleMapper">
+    <insert id="addAuthorities">
+        INSERT IGNORE INTO `sys_role_authority_rela` (
+            role_id,authority_id
+        ) VALUES
+        <foreach collection="authorities" separator="," item="item">
+            (#{id},#{item})
+        </foreach>
+    </insert>
+    <insert id="addRole" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO `sys_role` (
+            role_name, role_desc
+        ) VALUES (
+            #{roleName}, #{roleDesc}
+        )
+    </insert>
+    <update id="modify">
+        UPDATE
+            `sys_role`
+        SET
+        <trim suffixOverrides=",">
+            <if test="roleName != null">
+                role_name = #{roleName},
+            </if>
+            <if test="roleDesc != null">
+                role_desc = #{roleDesc},
+            </if>
+        </trim>
+        WHERE
+            id = #{id}
+    </update>
+    <delete id="deleteById">
+        DELETE FROM
+            `sys_role`
+        WHERE
+            id = #{roleId}
+    </delete>
+    <delete id="removeAuthorities">
+        DELETE FROM
+            `sys_role_authority_rela`
+        WHERE
+            role_id = #{id}
+            AND authority_id IN
+            <foreach collection="authorities" open="(" separator="," close=")" item="item">
+                #{item}
+            </foreach>
+    </delete>
+    <select id="listRole" resultType="top.vnelinpe.management.dto.sys.SysRoleDTO">
+        SELECT
+            id, role_name, role_desc
+        FROM
+            `sys_role`
+        <where>
+            <if test="roleName != null">
+                AND role_name LIKE concat('%',#{roleName},'%')
+            </if>
+            <if test="roleDesc != null">
+                AND role_desc LIKE concat('%',#{roleDesc},'%')
+            </if>
+        </where>
+    </select>
+    <select id="getRoleById" resultMap="roleDetailMap">
+        SELECT
+            sr.id rid, sr.role_name, sr.role_desc,
+            sa.id aid, sa.authority_name, sa.authority_desc
+        FROM
+            `sys_role` AS sr LEFT JOIN `sys_role_authority_rela` AS srar ON sr.id = srar.role_id
+            LEFT JOIN `sys_authority` AS sa ON srar.authority_id = sa.id
+        WHERE
+            sr.id = #{roleId}
+    </select>
+
+    <resultMap id="roleDetailMap" type="top.vnelinpe.management.dto.sys.SysRoleDetailsDTO">
+        <id property="id" column="rid"></id>
+        <result property="roleName" column="role_name"></result>
+        <result property="roleDesc" column="role_desc"></result>
+        <collection property="authorities" ofType="top.vnelinpe.management.dto.sys.SysAuthorityDTO">
+            <id property="id" column="aid"></id>
+            <result property="authorityName" column="authority_name"></result>
+            <result property="authorityDesc" column="authority_desc"></result>
+        </collection>
+    </resultMap>
+</mapper>

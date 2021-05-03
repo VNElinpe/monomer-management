@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="top.vnelinpe.management.mapper.UserMapper">
+    <insert id="addRoles">
+        INSERT IGNORE into `sys_user_role_rela`
+            (user_id,role_id)
+        VALUES
+        <foreach collection="roleList" separator="," item="item">
+            (#{userId},#{item})
+        </foreach>
+    </insert>
+    <insert id="addAuthorities">
+        INSERT IGNORE into `sys_user_authority_rela`
+            (user_id,authority_id)
+        VALUES
+        <foreach collection="authorityList" separator="," item="item">
+            (#{userId},#{item})
+        </foreach>
+    </insert>
+    <insert id="addUser" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO `sys_user` (
+            username,surname,password,email, phone
+        ) VALUES (
+            #{username},#{surname},#{password},#{email},#{phone}
+        )
+    </insert>
+    <update id="modify">
+        UPDATE
+            `sys_user`
+        SET
+        <trim suffixOverrides=",">
+            <if test="username != null">
+                username=#{username},
+            </if>
+            <if test="surname != null">
+                surname=#{surname},
+            </if>
+            <if test="password != null">
+                password=#{password},
+            </if>
+            <if test="email != null">
+                email=#{email},
+            </if>
+            <if test="phone != null">
+                phone=#{phone},
+            </if>
+        </trim>
+        WHERE
+            id = #{id}
+    </update>
+    <delete id="removeRoles">
+        DELETE FROM
+            `sys_user_role_rela`
+        WHERE
+            user_id = #{userId}
+            AND
+            role_id IN
+            <foreach collection="roleList" open="(" separator="," close=")" item="item">
+                #{item}
+            </foreach>
+    </delete>
+    <delete id="removeAuthorities">
+        DELETE FROM
+            `sys_user_authority_rela`
+        WHERE
+            user_id = #{userId}
+        AND
+            authority_id IN
+            <foreach collection="authorityList" open="(" separator="," close=")" item="item">
+                #{item}
+            </foreach>
+    </delete>
+    <delete id="deleteById">
+        DELETE FROM
+            `sys_user`
+        WHERE
+            id = #{userId}
+    </delete>
+    <select id="getAuthorityByUserId" resultType="top.vnelinpe.management.model.sys.SysAuthorityDO">
+        SELECT
+            `sa`.id, `sa`.authority_name, `sa`.authority_desc
+        FROM
+            `sys_user_role_rela` AS `surr` LEFT JOIN `sys_role_authority_rela` AS `srar` USING(role_id)
+            LEFT JOIN `sys_authority` AS `sa` ON `srar`.authority_id = `sa`.id
+        WHERE
+            `surr`.user_id = #{userId}
+
+        UNION ALL
+
+        SELECT
+            `sa`.id, `sa`.authority_name, `sa`.authority_desc
+        FROM
+            `sys_user_authority_rela` AS `suar` LEFT JOIN `sys_authority` AS `sa` ON `suar`.authority_id = `sa`.id
+        WHERE
+            `suar`.user_id = #{userId}
+    </select>
+    <select id="getUserById" resultMap="userDetailMap">
+        SELECT
+            `su`.id, `su`.username, `su`.surname, `su`.password, `su`.phone,
+            `su`.email, `sr`.id rid, `sr`.role_name, `sr`.role_desc
+        FROM
+            `sys_user` AS `su` LEFT JOIN `sys_user_role_rela` AS `surr` ON `su`.id = `surr`.user_id
+                               LEFT JOIN `sys_role` AS `sr` ON `surr`.role_id = `sr`.id
+        WHERE
+            `su`.id = #{userId}
+    </select>
+    <select id="listUser" resultType="top.vnelinpe.management.dto.sys.SysUserDTO">
+        SELECT
+            id, username, surname, email, phone
+        FROM
+            `sys_user`
+        <where>
+            <if test="username != null">
+                and username = #{username}
+            </if>
+            <if test="surname != null">
+                and surname = #{surname}
+            </if>
+            <if test="email != null">
+                and email = #{email}
+            </if>
+            <if test="phone != null">
+                and phone = #{phone}
+            </if>
+        </where>
+    </select>
+    <select id="findUserByUsername" resultType="top.vnelinpe.management.model.sys.SysUserDO">
+        SELECT
+            id, username, surname, email, phone
+        FROM
+            `sys_user`
+        WHERE
+            `sys_user`.username = #{username}
+    </select>
+    <select id="findUserBySurname" resultType="top.vnelinpe.management.model.sys.SysUserDO">
+        SELECT
+            id, username, surname, email, phone
+        FROM
+            `sys_user`
+        WHERE
+            `sys_user`.surname = #{surname}
+    </select>
+    <select id="findUserByEmail" resultType="top.vnelinpe.management.model.sys.SysUserDO">
+        SELECT
+            id, username, surname, email, phone
+        FROM
+            `sys_user`
+        WHERE
+            `sys_user`.email = #{email}
+    </select>
+    <select id="findUserByPhone" resultType="top.vnelinpe.management.model.sys.SysUserDO">
+        SELECT
+            id, username, surname, email, phone
+        FROM
+            `sys_user`
+        WHERE
+            `sys_user`.phone = #{phone}
+    </select>
+    <select id="getUserByUsername" resultMap="sysUserResultMap">
+        SELECT
+            `su`.id, `su`.username, `su`.surname, `su`.password, `su`.phone,
+            `su`.email, `sa`.id aid, `sa`.authority_name, `sa`.authority_desc
+        FROM
+            `sys_user` AS `su` LEFT JOIN `sys_user_role_rela` AS `surr` ON `su`.id = `surr`.user_id
+                               LEFT JOIN `sys_role_authority_rela` AS `srar` USING(role_id)
+                               LEFT JOIN `sys_authority` AS `sa` ON `srar`.authority_id = `sa`.id
+        WHERE
+            `su`.username = #{username}
+
+        UNION ALL
+
+        SELECT
+            `su`.id, `su`.username, `su`.surname, `su`.password, `su`.phone,
+            `su`.email, `sa`.id aid, `sa`.authority_name, `sa`.authority_desc
+        FROM
+            `sys_user` AS `su` LEFT JOIN `sys_user_authority_rela` AS `suar` ON `su`.id = `suar`.user_id
+                               LEFT JOIN `sys_authority` AS `sa` ON `suar`.authority_id = `sa`.id
+        WHERE
+            `su`.username = #{username}
+    </select>
+    <select id="listExtraAuthorityByUserId" resultType="top.vnelinpe.management.model.sys.SysAuthorityDO">
+        SELECT
+            `sa`.id, `sa`.authority_name, `sa`.authority_desc
+        FROM
+            `sys_user_authority_rela` AS `suar` LEFT JOIN `sys_authority` AS `sa` ON `suar`.authority_id = `sa`.id
+        WHERE
+            `suar`.user_id = #{userId}
+    </select>
+
+
+    <resultMap id="sysUserResultMap" type="top.vnelinpe.management.dto.sys.UserDetailsDTO">
+        <id property="id" column="id" />
+        <result property="username" column="username" />
+        <result property="surname" column="surname" />
+        <result property="password" column="password" />
+        <result property="phone" column="phone" />
+        <result property="email" column="email" />
+        <collection property="authorities" ofType="top.vnelinpe.management.model.sys.SysAuthorityDO">
+            <id property="id" column="aid" />
+            <result property="authorityName" column="authority_name" />
+            <result property="authorityDesc" column="authority_desc" />
+        </collection>
+    </resultMap>
+
+    <resultMap id="userDetailMap" type="top.vnelinpe.management.dto.sys.SysUserDetailsDTO">
+        <id property="id" column="uid"></id>
+        <result property="username" column="username"></result>
+        <result property="surname" column="surname"></result>
+        <result property="phone" column="phone"></result>
+        <result property="email" column="email"></result>
+        <collection property="roles" ofType="top.vnelinpe.management.vo.sys.SysRoleVO">
+            <id property="id" column="rid"></id>
+            <result property="roleName" column="role_name"></result>
+            <result property="roleDesc" column="role_desc"></result>
+        </collection>
+    </resultMap>
+</mapper>

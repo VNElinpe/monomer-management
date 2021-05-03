@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="top.vnelinpe.management.mapper.MessageMapper">
+    <select id="findMessageBySceneCode" resultType="top.vnelinpe.management.model.sys.SysMessageDO">
+        select
+            id, scene_code, `usage`, content, create_time, deleted
+        from
+            `sys_message`
+        where
+            scene_code = #{sceneCode}
+    </select>
+    <select id="listMessages" resultType="top.vnelinpe.management.model.sys.SysMessageDO">
+        select
+            id, scene_code, `usage`, content, create_time, deleted
+        from
+            `sys_message`
+        where
+            deleted = false
+    </select>
+</mapper>

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="top.vnelinpe.management.mapper.AuthorityMapper">
+    <insert id="addAuthority">
+        INSERT INTO sys_authority (
+            authority_name, authority_desc
+        ) VALUES (
+            #{authorityName}, #{authorityDesc}
+        )
+    </insert>
+    <update id="modify">
+        UPDATE
+            `sys_authority`
+        SET
+        <trim suffixOverrides=",">
+            <if test="authorityName != null">
+                authority_name = #{authorityName},
+            </if>
+            <if test="authorityDesc != null">
+                authority_desc = #{authorityDesc},
+            </if>
+        </trim>
+        where
+        id = #{id}
+    </update>
+    <delete id="deleteById">
+        DELETE FROM
+            `sys_authority`
+        WHERE
+            id = #{authorityId}
+    </delete>
+    <select id="listAuthorities" resultType="top.vnelinpe.management.dto.sys.SysAuthorityDTO">
+        SELECT
+            id, authority_name, authority_desc
+        FROM
+            `sys_authority`
+        <where>
+            <if test="authorityName != null">
+                AND authority_name LIKE concat('%',#{authorityName},'%')
+            </if>
+
+            <if test="authorityDesc != null">
+                AND authority_desc LIKE concat('%',#{authorityDesc},'%')
+            </if>
+        </where>
+    </select>
+    <select id="getAuthorityById" resultType="top.vnelinpe.management.dto.sys.SysAuthorityDTO">
+        SELECT
+            id, authority_name, authority_desc
+        FROM
+            `sys_authority`
+        WHERE
+            id = #{authorityId}
+    </select>
+</mapper>
